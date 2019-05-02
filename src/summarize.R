@@ -50,6 +50,9 @@ get_weighted_frequency <- function(text_table){
   return(text_table)
 }
 
+
+
+
 raw_text_lines_list <- get_text_as_lines()
 
 raw_text_removed_stopwords <- remove_stop_words(raw_text_lines_list)
@@ -58,4 +61,33 @@ word_frequency <- get_word_frequency(raw_text_removed_stopwords)
 
 word_frequency_weighted <-get_weighted_frequency(word_frequency)  
 
+
+  temp_vector <- c()
+  for(line in raw_text_removed_stopwords){
+    temp = 0
+    for(word in word_frequency_weighted$list_of_all_words){
+      if(line[line == word]){
+        temp <- temp + word_frequency_weighted$weighted_freq[word_frequency_weighted$list_of_all_words == word]
+      }
+      
+      temp_vector <- c(temp_vector, temp)
+    }
+  }
+
+
+
+
+exchange_words_with_weighted_frequency <- function(table_with_freq, lines_list){
+  temp_vector <- c()
+  for(line in lines_list){
+    temp = 0
+    for(word in table_with_freq$list_of_all_words){
+      if(line[line == word]){
+        temp <- temp + table_with_freq$weighted_freq
+      }
+      
+      temp_vector <- c(temp_vector, temp)
+    }
+  }
+}
 
