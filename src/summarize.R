@@ -1,93 +1,144 @@
-install.packages("stopwords")
-install.packages("dplyr")
+if (!require(stringi)) install.packages('stringi')
+if (!require(tm)) install.packages('tm')
+if (!require(dplyr)) install.packages('dplyr')
+if (!require(readr)) install.packages("readr")
 
+library(readr)
+library(tm)
 library(dplyr)
-library(stopwords)
+library(stringi)
 
-get_text_as_lines <- function(){
-  raw_text <- scan("./example/test.txt", sep = "\n", what = "char")
-  
-  raw_text_lines <- strsplit(raw_text, "\\.")
-  
-  raw_text_lines_list <- lapply(raw_text_lines, function(x) strsplit(x, "\\W"))[[1]]
-  
-  return (raw_text_lines_list)
-}
+start_time <- Sys.time()
 
-remove_stop_words <- function(text_as_lines){
-  raw_text_removed_stopwords <- list()
+get_word_frequency <- function(word_vector){
   
-  for(line in text_as_lines){
-    line_without_spaces <-line[line != ""]
-    words <- line_without_spaces %in% stopwords()
-    indexes <- which(words == TRUE)
-    for(i in indexes){
-      line_without_spaces <- line_without_spaces[-i]
-    }
-    raw_text_removed_stopwords <- c(raw_text_removed_stopwords, list(line_without_spaces))
-  }
-  return(raw_text_removed_stopwords)
-}
-
-get_word_frequency <- function(text){
-  list_of_all_words <- unlist(text)
-  
-  frequency_of_words <- as.data.frame(table(list_of_all_words))
-  
+  frequency_of_words <- data.frame(table(word_vector))
+  names(frequency_of_words)[1] <- "Words"
   sorted <- frequency_of_words[order(frequency_of_words$Freq, decreasing = TRUE),]
   return(sorted)
 }
 
-get_weighted_frequency <- function(text_table){
-  temp <- c()
-  for(freq in text_table$Freq){
-    i <- freq/text_table$Freq[1]
-    temp <- c(temp, i)
+
+get_weighted_frequency <- function(frequency_vector){
+  weighted_frequency_vector <- c()
+  for(freq in frequency_vector){
+    i <- freq/frequency_vector[1]
+    weighted_frequency_vector <- c(weighted_frequency_vector, i)
   }
   
-  text_table$weighted_freq <- temp
+  return(weighted_frequency_vector)
+}
+
+exchange_words_with_weighted_frequency <- function(word_df, lines_factor){
+  temp_vector <- c()
+  for(line in lines_factor){
+    temp = 0
+    for(word in word_df$Words){
+      if(grepl(word, line)){
+        temp <- temp + word_df$weighted_freq[word_df$Words == word]
+        print(word)
+      }
+    }
+    temp_vector <- c(temp_vector, temp)
+  }
   
-  return(text_table)
+  return(temp_vector)
 }
 
 
 
+path <- "./example/benchmark.txt"
 
-raw_text_lines_list <- get_text_as_lines()
+raw_text <- read_file(path)
 
-raw_text_removed_stopwords <- remove_stop_words(raw_text_lines_list)
+  
+##raw_text <- scan(path, sep = "\n", what = "char")
 
-word_frequency <- get_word_frequency(raw_text_removed_stopwords)
+doc <- VCorpus(VectorSource(raw_text))
 
-word_frequency_weighted <-get_weighted_frequency(word_frequency)  
+doc2 <- tm_map(doc, function(x) stri_replace_all_fixed(x, "\t", " "))
+doc2 <- tm_map(doc2, function(x) stri_replace_all_fixed(x, "\r", " "))
+doc2 <- tm_map(doc2, function(x) stri_replace_all_fixed(x, "\n", " "))
+
+doc3 <- tm_map(doc2, PlainTextDocument)
+
+doc4 <- tm_map(doc3, stripWhitespace)
+
+doc5 <- tm_map(doc4, removeWords, stopwords("english"))
+
+doc6 <- tm_map(doc5, tolower) 
+
+doc_df  <- data.frame(
+  raw = unlist(strsplit(unlist(raw_text), "[.]")), 
+  clean = unlist(strsplit(unlist(doc6$content), "[.]")))
+
+word_vector <- strsplit(unlist(doc6$content), "\\W")[[1]]
+
+word_no_whitespace_vector = word_vector[word_vector != ""]
+
+word_frequency_df <- get_word_frequency(word_no_whitespace_vector)
+
+word_frequency_df$weighted_freq <- get_weighted_frequency(word_frequency_df$Freq)
+
+doc_df$points <- exchange_words_with_weighted_frequency(word_frequency_df, doc_df$clean)
+
+doc_df <- doc_df[order(doc_df$points, decreasing = TRUE),]
+
+summation <-as.character(doc_df$raw)[1:10]
 
 
-  temp_vector <- c()
-  for(line in raw_text_removed_stopwords){
-    temp = 0
-    for(word in word_frequency_weighted$list_of_all_words){
-      if(line[line == word]){
-        temp <- temp + word_frequency_weighted$weighted_freq[word_frequency_weighted$list_of_all_words == word]
-      }
-      
-      temp_vector <- c(temp_vector, temp)
-    }
-  }
+print(summation)
+
+end_time <- Sys.time()
+
+time <- end_time - start_time
+print(time)
 
 
 
 
-exchange_words_with_weighted_frequency <- function(table_with_freq, lines_list){
-  temp_vector <- c()
-  for(line in lines_list){
-    temp = 0
-    for(word in table_with_freq$list_of_all_words){
-      if(line[line == word]){
-        temp <- temp + table_with_freq$weighted_freq
-      }
-      
-      temp_vector <- c(temp_vector, temp)
-    }
+
+
+
+get_weighted_freq_data_frame <- function(word_clean, line, word_df){
+  if(grepl(word_clean, line)){
+    return(word_df$weighted_freq[word_df$Words == word_clean])
   }
 }
 
+get_sum_of_line <- function(line, word_df){
+  sum_line <- sapply(word_df$Words, get_weighted_freq_data_frame (x, line, word_df))
+  return(sum_line)
+}
+
+exchange_words_with_weighted_frequency_two <- function(word_df, lines_factor){
+  temp_vector <- c()
+  
+  temp_vector <- c(temp_vector, sapply(lines_factor, get_sum_of_line(x, word_df)))
+  
+  return(temp_vector)
+}
+
+
+
+##Benchmark
+
+start_time <- Sys.time()
+
+doc_df$points <- exchange_words_with_weighted_frequency(word_frequency_df, doc_df$clean)
+
+end_time <- Sys.time()
+
+time <- end_time - start_time
+print(time)
+
+## new 
+
+start_time <- Sys.time()
+
+doc_df_two$points <- exchange_words_with_weighted_frequency_two(word_frequency_df, doc_df_two$clean)
+
+end_time <- Sys.time()
+
+time <- end_time - start_time
+print(time)
