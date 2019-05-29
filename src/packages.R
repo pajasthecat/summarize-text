@@ -1,0 +1,6 @@
+if (!require(stringi)) install.packages('stringi')
+if (!require(tm)) install.packages('tm')
+if (!require(dplyr)) install.packages('dplyr')
+if (!require(readr)) install.packages("readr")
+if (!require(plumber)) install.packages("plumber")
+if (!require(base64enc)) install.packages("base64enc")
