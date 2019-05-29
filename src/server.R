@@ -1,5 +1,5 @@
-if (!require(plumber)) install.packages("plumber")
-
 library(plumber)
-r <- plumb("benchmark.R")
+
+r <- plumb("controller.R")
+
 r$run(port=8000)
