@@ -1,4 +1,4 @@
-source('clean_text.R')
+source('src/clean_text.R')
 
 CalculateWordFrequency <- function(word_vector){
   # Calculate word frequency in vector of word. 

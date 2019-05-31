@@ -1,10 +1,10 @@
 library(plumber)
 library(base64enc)
-source('clean_text.R')
-source('summarize.R')
+source('src/clean_text.R')
+source('src/summarize.R')
 
 #* Summmarize text
-#* @param text
+#* @param base64.decoded.text
 #* @post /api/v1/texts/summarize
 
 summmarizeText <- function(base64.decoded.text){
