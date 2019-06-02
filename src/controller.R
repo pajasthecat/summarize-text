@@ -6,13 +6,13 @@ source('clean_text.R')
 source('summarize.R')
 source('scrape_content.R')
 
-#* Summmarize text§
-#* @param base64.decoded.text
+#* Summmarize text
+#* @param base64Content
 #* @post /api/v1/texts/summarize
-SummmarizeText <- function(base64.decoded.text){
+SummmarizeText <- function(base64Content){
   # Endpoint for summarizing text
   
-  byte.vector <- base64enc::base64decode(base64.decoded.text)
+  byte.vector <- base64enc::base64decode(base64Content)
   
   text <- rawToChar(byte.vector)
   
@@ -43,11 +43,11 @@ SummmarizeText <- function(base64.decoded.text){
   return(result)
 }
 
-#* Get text from url
-#* @param url
-#* @get /api/v1/texts/scrape
-ScrapeFromURL <- function(url){
-  result <- ScrapeText(url)  %>%
+#* Scrape text from url
+#* @param uri to text
+#* @get /api/v1/texts/scrape/<url>
+ScrapeFromURL <- function(uri){
+  result <- ScrapeText(uri)  %>%
     caTools::base64encode()
 
   return(result)
