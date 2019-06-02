@@ -1,17 +1,21 @@
 library(tm)
 library(stringi)
+library(magrittr)
 
 CleanText <- function(raw.text){
   # Function to clean text before summarizing.
   
-  temp <- tolower(raw.text)
-  temp <- stri_replace_all_regex(temp, "[^a-zA-Z.\\s]", " ")
-  temp <- stri_replace_all_fixed(temp, "\t", " ")
-  temp <- stri_replace_all_fixed(temp, "\n", " ")
-  temp <- stri_replace_all_fixed(temp, "\r", " ")
-  temp <- stri_replace_all_regex(temp, "[\\s]+", " ")
+  temp <- tolower(raw.text)  %>%
+    stri_replace_all_regex("[^a-zA-Z.\\s]", " ") %>% 
+      stri_replace_all_fixed("\t", " ") %>% 
+        stri_replace_all_fixed("\n", " ") %>% 
+          stri_replace_all_fixed( "\r", " ") %>% 
+            stri_replace_all_regex("[\\s]+", " ") %>%
+              VectorSource() %>%
+                VCorpus() %>%
+                  tm_map(removeWords, stopwords("english"))
   
-  return(temp)
+  return(temp[[1]]$content)
 }
 
 VectorizeAndRemoveChar <- function(cleaned.doc){
