@@ -3,9 +3,8 @@ library(caTools)
 library(magrittr)
 
 
-
-source('/app/src/clean_text.R')
 source('/app/src/summarize.R')
+source('/app/src/clean_text.R')
 source('/app/src/scrape_content.R')
 
 #* Summmarize text
