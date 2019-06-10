@@ -8,10 +8,3 @@ install_if_missing <- function(p) {
 }
 
 invisible(sapply(packages, install_if_missing))
-
-library(plumber)
-getwd()
-
-r <- plumb("controller.R")
-
-r$run(port=8000)
