@@ -2,7 +2,7 @@ library(plumber)
 library(caTools)
 library(magrittr)
 
-source('/src/clean_text.R')
+source('clean_text.R')
 source('/app/src/summarize.R')
 source('/app/src/scrape_content.R')
 
