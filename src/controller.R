@@ -2,9 +2,9 @@ library(plumber)
 library(caTools)
 library(magrittr)
 
-source('clean_text.R')
-source('summarize.R')
-source('scrape_content.R')
+source('/src/cclean_text.R')
+source('/src/csummarize.R')
+source('/src/cscrape_content.R')
 
 #* Summmarize text
 #* @param base64Content
