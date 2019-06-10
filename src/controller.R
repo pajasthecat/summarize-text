@@ -2,6 +2,8 @@ library(plumber)
 library(caTools)
 library(magrittr)
 
+getwd()
+
 source('/app/src/clean_text.R')
 source('/app/src/summarize.R')
 source('/app/src/scrape_content.R')
