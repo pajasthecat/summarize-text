@@ -1,8 +1,0 @@
-install.packages('stringi')
-install.packages('tm')
-install.packages('dplyr')
-install.packages("readr")
-install.packages("plumber")
-install.packages("base64enc")
-install.packages("magrittr")
-install.packages("caTools")
