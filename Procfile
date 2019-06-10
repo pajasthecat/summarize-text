@@ -1,0 +1,1 @@
+web: R -f /src/server.R --gui-none --no-save
