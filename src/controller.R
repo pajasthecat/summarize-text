@@ -4,8 +4,8 @@ library(magrittr)
 
 
 source('/app/src/summarize.R')
-source('/app/src/clean_text.R')
 source('/app/src/scrape_content.R')
+source('/app/src/clean_text.R')
 
 #* Summmarize text
 #* @param base64Content
