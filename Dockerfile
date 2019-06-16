@@ -12,10 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends -qq \
     	r-cran-rvest \
     	 && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /
 
-COPY . /app
+COPY . /
 
 EXPOSE 8000
 
-CMD Rscript /app/src/server.R
+CMD Rscript /src/server.R

@@ -1,5 +1,11 @@
 library(plumber)
 
-r <- plumb("/app/src/controller.R")
+r <- plumb("src/controller.R")
 
-r$run(host='0.0.0.0', port=strtoi(8000))
+port <- Sys.getenv("PORT") 
+
+if(port == ""){
+  port <- "8001"
+}
+
+r$run(host='0.0.0.0', port=strtoi(port))

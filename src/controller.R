@@ -2,10 +2,10 @@ library(plumber)
 library(caTools)
 library(magrittr)
 
-
-source('/app/src/summarize.R')
-source('/app/src/scrape_content.R')
-source('/app/src/clean_text.R')
+print(getwd())
+source('src/summarize.R')
+source('src/scrape_content.R')
+source('src/clean_text.R')
 
 #* Summmarize text
 #* @param base64Content
@@ -46,7 +46,7 @@ SummmarizeText <- function(base64Content){
 
 #* Scrape text from url
 #* @param uri to text
-#* @get /api/v1/texts/scrape/<url>
+#* @get /api/v1/texts/scrape
 ScrapeFromURL <- function(uri){
   result <- ScrapeText(uri)  %>%
     caTools::base64encode()
