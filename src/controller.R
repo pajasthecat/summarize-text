@@ -12,34 +12,16 @@ source('src/clean_text.R')
 #* @post /api/v1/texts/summarize
 SummmarizeText <- function(base64Content){
   # Endpoint for summarizing text
-  
-  byte.vector <- base64enc::base64decode(base64Content)
-  
-  text <- rawToChar(byte.vector)
+
+  text <- base64enc::base64decode(base64Content) %>%
+    rawToChar()
   
   clean.text <- CleanText(text)
   
-  doc.df  <- data.frame(
-    raw = unlist(strsplit(unlist(text), "[.]")), 
-    clean = unlist(strsplit(unlist(clean.text), "[.]")))
+  word.frequency.df <- GetWordFrequency(clean.text)
   
-  word.vector <- VectorizeAndRemoveChar(clean.text) 
-  
-  word.frequency.df <- CalculateWordFrequency(word.vector)
-  
-  word.frequency.df$weighted.freq <- CalculateWeightedWordFrequency(word.frequency.df$Freq)
-  
-  doc.df$points <- CalculateLinesSum(word.frequency.df, doc.df$clean)
-
-  doc.df <- doc.df[order(doc.df$points, decreasing = TRUE), ]
-  
-  doc.df <- head(doc.df, 5)
-  
-  summation.ordered <- doc.df[order(rownames(doc.df)), ]
-  
-  result <- as.character(summation.ordered$raw)[1:5]
-  
-  result <- paste(result, collapse = ".")
+  result <- list(
+    text = GetSummary(word.frequency.df, clean.text, text))
   
   return(result)
 }
@@ -48,8 +30,9 @@ SummmarizeText <- function(base64Content){
 #* @param uri to text
 #* @get /api/v1/texts/scrape
 ScrapeFromURL <- function(uri){
-  result <- ScrapeText(uri)  %>%
-    caTools::base64encode()
+  result <- list(
+    contentAsBytes = ScrapeText(uri)  %>%
+      caTools::base64encode()) 
 
   return(result)
 }
