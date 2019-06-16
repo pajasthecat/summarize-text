@@ -1,5 +1,7 @@
 source('src/clean_text.R')
 
+library(magrittr)
+
 CalculateWordFrequency <- function(word_vector){
   # Calculate word frequency in vector of word. 
   
@@ -7,36 +9,40 @@ CalculateWordFrequency <- function(word_vector){
   
   names(frequency_of_words)[1] <- "Words"
   
-  sorted <- frequency_of_words[order(frequency_of_words$Freq, decreasing = TRUE), ]
+  frequency_of_words_sorted <- frequency_of_words[order(frequency_of_words$Freq, decreasing = TRUE), ]
   
-  return(sorted)
+  return(frequency_of_words_sorted)
 }
 
-CalculateWeightedWordFrequency <- function(frequency.vector){
+CalculateWeightedWordFrequency <- function(word.frequency.df){
   # Calculate weighted frequency of word.
   
-  weighted.frequency.vector <- c()
+  frequency.vector <- word.frequency.df$Freq
   
-  for(freq in frequency.vector){
-    weighted.frequency <- freq/frequency.vector[1]
-    weighted.frequency.vector <- c(weighted.frequency.vector, weighted.frequency)
-  }
+  weighted.frequency.vector <- frequency.vector/frequency.vector[1]
   
-  return(weighted.frequency.vector)
+  word.frequency.df$weighted.freq <- weighted.frequency.vector
+  
+  return(word.frequency.df)
 }
 
-CalculateLineSum <- function(line, word.df){
+GetWordFrequency <- function(clean.text){
+  word.frequency.df <- VectorizeAndRemoveChar(clean.text) %>%
+    CalculateWordFrequency() %>%
+    CalculateWeightedWordFrequency()
+  
+  return(word.frequency.df)
+}
+
+CalculateLineSum <- function(line.vector, word.df){
   # Calculates sum of weighted frequency per line.
   
-  words.vector <- as.character(word.df$Words)
+  points <- word.df$weighted.freq[match(
+    VectorizeAndRemoveChar(line.vector), 
+    as.character(word.df$Words))]  %>% 
+    sum()
   
-  line.vector <- VectorizeAndRemoveChar(line)
-  
-  points <- word.df$weighted.freq[match(line.vector, words.vector)]
-  
-  sum.points <- sum(points)
-  
-  return(sum.points)
+  return(points)
 }
 
 CalculateLinesSum <- function(word.df, lines.factor){
@@ -46,4 +52,26 @@ CalculateLinesSum <- function(word.df, lines.factor){
               CalculateLineSum, word.df = word.df)
   
   return(sum.of.lines)
+}
+
+GetSummary <- function(word.frequency.df, clean.text, text){
+  #Calculate ponits for each line and return result.
+  
+  doc.df  <- data.frame(
+    raw = unlist(strsplit(unlist(text), "[.]")), 
+    clean = unlist(strsplit(unlist(clean.text), "[.]")))
+  
+  doc.df$points <- CalculateLinesSum(word.frequency.df, doc.df$clean)
+  
+  doc.df <- doc.df[order(doc.df$points, decreasing = TRUE), ]
+  
+  doc.df <- head(doc.df, 5)
+  
+  summation.ordered <- doc.df[order(rownames(doc.df)), ]
+  
+  result <- as.character(summation.ordered$raw)[1:5]
+  
+  result <- paste(result, collapse = ".")
+  
+  return(result)
 }
