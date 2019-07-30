@@ -1,15 +1,5 @@
 source('../src/clean_text.R')
-
-
-AssertAreEqual <-function(result, expected){
-  
-  if(result == expected){
-    
-    print("TRUE")
-  } else{
-    print("FALSE")
-  }
-}
+source('utility_tests.R')
 
 #Test CalculateWeightedWordFrequency
 

@@ -29,10 +29,21 @@ SummmarizeText <- function(base64Content){
 #* Scrape text from url
 #* @param uri to text
 #* @get /api/v1/texts/scrape
-ScrapeFromURL <- function(uri){
-  result <- list(
-    contentAsBytes = ScrapeText(uri)  %>%
-      caTools::base64encode()) 
+ScrapeFromURL <- function(uri, res){
+  try(
+    contentAsBytes <- ScrapeText(uri)  %>%
+      caTools::base64encode()
+  )
 
-  return(result)
+  if(!exists('contentAsBytes')){
+    result <- list(
+      error = "Unable to scrape page."
+    )
+    res$status <- 400
+    } else {
+      result <- list(
+        contentAsBytes = contentAsBytes)
+    }
+  
+    return(result)
 }
