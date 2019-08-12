@@ -2,7 +2,6 @@ library(plumber)
 library(caTools)
 library(magrittr)
 
-print(getwd())
 source('src/summarize.R')
 source('src/scrape_content.R')
 source('src/clean_text.R')
@@ -29,21 +28,10 @@ SummmarizeText <- function(base64Content){
 #* Scrape text from url
 #* @param uri to text
 #* @get /api/v1/texts/scrape
-ScrapeFromURL <- function(uri, res){
-  try(
-    contentAsBytes <- ScrapeText(uri)  %>%
-      caTools::base64encode()
-  )
+ScrapeFromURL <- function(uri){
+  result <- list(
+    contentAsBytes = ScrapeText(uri)  %>%
+      caTools::base64encode()) 
 
-  if(!exists('contentAsBytes')){
-    result <- list(
-      error = "Unable to scrape page."
-    )
-    res$status <- 400
-    } else {
-      result <- list(
-        contentAsBytes = contentAsBytes)
-    }
-  
-    return(result)
+  return(result)
 }

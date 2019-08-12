@@ -1,5 +1,0 @@
-heroku container:push web --app mysterious-anchorage-15460
-
-heroku container:release web --app mysterious-anchorage-15460
-
-heroku logs --tail --app mysterious-anchorage-15460
