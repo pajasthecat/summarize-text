@@ -8,7 +8,7 @@ This projects has three aims
 
 ## Docker
 
-Go to root of project and make follwing commands to het the Docker image.
+Go to root of project and make following commands.
 
 To build image.
 
